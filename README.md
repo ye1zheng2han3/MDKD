@@ -5,7 +5,7 @@
 The code is built on [mdistiller](<https://github.com/megvii-research/mdistiller>), [Logit-Standardization-in-Knowledge-Distillation](<https://github.com/sunshangquan/logit-standardization-KD>) and [CTKD](<https://github.com/zhengli97/CTKD>).
 
 <img src=MDKD+.jpg width=100% /> 
-Optimizal Normalization:
+
 
 ### Installation
 
