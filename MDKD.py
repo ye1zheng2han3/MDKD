@@ -60,7 +60,7 @@ def dkd_loss(logits_student_in, logits_teacher_in, target, alpha, beta, temperat
         * (temperature**2)
         / target.shape[0]
     )
-    return (alpha) * tckd_loss / 10 + (beta) * nckd_loss / 10
+    return (alpha) * tckd_loss + (beta) * nckd_loss
 
 
 def cc_loss(logits_student, logits_teacher, target, alpha, beta, temperature, reduce=True):
@@ -146,10 +146,8 @@ class MDKD(Distiller):
         super(MDKD, self).__init__(student, teacher)
         self.temperature = cfg.KD.TEMPERATURE
         self.warmup = cfg.DKD.WARMUP
-        self.alpha = cfg.DKD.ALPHA
-        self.beta = cfg.DKD.BETA
-        self.alpha_bc = cfg.MDKD.ALPHA
-        self.beta_bc = cfg.MDKD.BETA
+        self.alpha = 0.1
+        self.beta = 0.8
         self.ce_loss_weight = cfg.KD.LOSS.CE_WEIGHT
         self.kd_loss_weight = cfg.KD.LOSS.KD_WEIGHT
         self.logit_stand = cfg.EXPERIMENT.LOGIT_STAND
@@ -275,128 +273,77 @@ class MDKD(Distiller):
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             self.temperature,
             # reduce=False
         ) * class_conf_mask).mean()) + self.kd_loss_weight * ((cc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             3.0,
         ) * class_conf_mask).mean()) + self.kd_loss_weight * ((cc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             5.0,
         ) * class_conf_mask).mean()) + self.kd_loss_weight * ((cc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             2.0,
         ) * class_conf_mask).mean()) + self.kd_loss_weight * ((cc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             6.0,
         ) * class_conf_mask).mean()))
 
-        #loss_cc_strong = min(kwargs["epoch"] / self.warmup, 1.0) *(self.kd_loss_weight * cc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    self.temperature + value,
-        #) + self.kd_loss_weight * cc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    3.0 + value,
-        #) + self.kd_loss_weight * cc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    5.0 + value,
-        #) + self.kd_loss_weight * cc_loss(
-        #    logits_student_weak,
-        #    logits_teacher_weak,
-        #    target,
-        #    2.0 + value,
-        #) + self.kd_loss_weight * cc_loss(
-        #    logits_student_weak,
-        #    logits_teacher_weak,
-        #    target,
-        #    6.0 + value,
-        #))
         loss_bc_weak = min(kwargs["epoch"] / self.warmup, 1.0) *(self.kd_loss_weight * ((bc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             self.temperature,
         ) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             3.0,
         ) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             5.0,
         ) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             2.0,
         ) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
             logits_student_weak,
             logits_teacher_weak,
             target,
-            self.alpha_bc,
-            self.beta_bc,
+            self.alpha,
+            self.beta,
             6.0,
         ) * mask).mean()))
-        #loss_bc_strong = min(kwargs["epoch"] / self.warmup, 1.0) *(self.kd_loss_weight * ((bc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    self.temperature + value,
-        #) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    3.0 + value,
-        #) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    5.0 + value,
-        #) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    2.0 + value,
-        #) * mask).mean()) + self.kd_loss_weight * ((bc_loss(
-        #    logits_student_strong,
-        #    logits_teacher_strong,
-        #    target,
-        #    6.0 + value,
-        #) * mask).mean()))
+        
         losses_dict = {
             "loss_ce": loss_ce,
             "loss_kd": loss_kd_weak + loss_kd_strong,
