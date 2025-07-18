@@ -2,7 +2,7 @@
 
 ## Usage
 
-The code is built on [mdistiller](<https://github.com/megvii-research/mdistiller>), [Logit-Standardization-in-Knowledge-Distillation](<https://github.com/sunshangquan/logit-standardization-KD>) and [MLKD]([<https://github.com/zhengli97/CTKD>](https://github.com/Jin-Ying/Multi-Level-Logit-Distillation)).
+The code is built on [mdistiller](<https://github.com/megvii-research/mdistiller>), [Logit-Standardization-in-Knowledge-Distillation](<https://github.com/sunshangquan/logit-standardization-KD>) and [MLKD](<https://github.com/Jin-Ying/Multi-Level-Logit-Distillation>).
 
 <img src=MDKD+.jpg width=100% /> 
 
